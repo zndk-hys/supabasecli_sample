@@ -1,24 +1,26 @@
+import createSupabaseClient from './lib/client'
 import './style.css'
-import typescriptLogo from './typescript.svg'
-import viteLogo from '/vite.svg'
-import { setupCounter } from './counter.ts'
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="${viteLogo}" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://www.typescriptlang.org/" target="_blank">
-      <img src="${typescriptLogo}" class="logo vanilla" alt="TypeScript logo" />
-    </a>
-    <h1>Vite + TypeScript</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite and TypeScript logos to learn more
-    </p>
-  </div>
-`
+const client = createSupabaseClient();
+const data = await client.from('entities').select();
+console.log(data);
 
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
+// RLSによりエラー
+// await client.from('entities').insert({
+//   owner_id: '3a14de44-645d-4325-b00d-7e06855d2214',
+//   title: 'entity title',
+//   url: 'https://example.com/entitiy1',
+//   memo: 'entity memo',
+// });
+
+await client.auth.signInWithPassword({
+  email: 'admin@example.com',
+  password: 'password',
+});
+
+await client.from('entities').insert({
+  owner_id: '3a14de44-645d-4325-b00d-7e06855d2214',
+  title: 'entity title',
+  url: 'https://example.com/entitiy1',
+  memo: 'entity memo',
+});
