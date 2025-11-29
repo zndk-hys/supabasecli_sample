@@ -1,3 +1,4 @@
+-- users
 INSERT INTO auth.users (
   instance_id,
   id,
@@ -52,3 +53,14 @@ SELECT
   NOW(),
   NOW()
 FROM auth.users;
+
+
+-- entities
+INSERT INTO entities (
+  owner_id, title, url, memo
+) values (
+  '3a14de44-645d-4325-b00d-7e06855d2214',
+  'entity title',
+  'https://example.com/entitiy1',
+  'entity memo'
+);
