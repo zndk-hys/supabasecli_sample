@@ -1,6 +1,7 @@
 -- function
 CREATE FUNCTION update_updated_at()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER SET search_path = public
+AS $$
 BEGIN
   NEW.updated_at = now();
   RETURN NEW;
@@ -34,9 +35,9 @@ CREATE POLICY "entities_select_rls" ON entities
 FOR SELECT
 USING (true);
 
-CREATE POLICY "entities_all_rls" ON entities FOR ALL TO authenticated
-USING (owner_id = auth.uid())
-WITH CHECK (owner_id = auth.uid());
+CREATE POLICY "entities_insert_rls" ON entities FOR INSERT TO authenticated WITH CHECK (owner_id = (SELECT auth.uid()));
+CREATE POLICY "entities_update_rls" ON entities FOR UPDATE TO authenticated USING (owner_id = (SELECT auth.uid())) WITH CHECK (owner_id = (SELECT auth.uid()));
+CREATE POLICY "entities_delete_rls" ON entities FOR DELETE TO authenticated USING (owner_id = (SELECT auth.uid()));
 
 
 -- trigger
