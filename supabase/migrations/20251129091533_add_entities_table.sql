@@ -1,3 +1,18 @@
+-- function
+CREATE FUNCTION update_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- enum
+CREATE TYPE entity_status_enum
+AS ENUM ('planned', 'in_progress', 'completed', 'is_archived');
+
+
 -- table
 CREATE TABLE entities (
   id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -5,11 +20,12 @@ CREATE TABLE entities (
   title      text NOT NULL,
   url        text NOT NULL,
   memo       text NOT NULL,
-  status     text NOT NULL DEFAULT 'planned',
+  status     entity_status_enum NOT NULL DEFAULT 'planned',
 	
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
 
 -- rls
 ALTER TABLE entities ENABLE ROW LEVEL SECURITY;
@@ -21,3 +37,10 @@ USING (true);
 CREATE POLICY "entities_all_rls" ON entities FOR ALL TO authenticated
 USING (owner_id = auth.uid())
 WITH CHECK (owner_id = auth.uid());
+
+
+-- trigger
+CREATE TRIGGER update_entities_updated_at
+BEFORE UPDATE ON entities
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at();
